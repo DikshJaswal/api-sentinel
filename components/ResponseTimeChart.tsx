@@ -93,13 +93,27 @@ export default function ResponseTimeChart() {
   };
 
   return (
-    <div className="rounded-2xl bg-[#020617] p-6 border border-white/10 shadow-2xl">
-      <h3 className="mb-4 text-lg font-semibold text-white">
-        Response Time Trend (Live)
-      </h3>
+    <div className="rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm p-6 shadow-2xl">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-semibold text-white">
+            Response Time Trend
+          </h3>
+          <p className="text-sm text-gray-400 mt-1">Live monitoring - updates every 5 seconds</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-xs text-gray-400">Live</span>
+        </div>
+      </div>
 
       <div className="relative h-[320px] w-full">
         <Line data={chartData} options={options} />
+      </div>
+      
+      <div className="mt-4 flex items-center justify-between text-xs text-gray-400">
+        <span>Average response time: {logs.length > 0 ? Math.round(logs.reduce((acc, l) => acc + (l.responseTime || 0), 0) / logs.length) : 0}ms</span>
+        <span>Data points: {logs.length}</span>
       </div>
     </div>
   );

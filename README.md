@@ -1,168 +1,142 @@
 # API Sentinel
 
-A comprehensive API monitoring and management dashboard built with Next.js 16, TypeScript, and Tailwind CSS. Real-time monitoring, health tracking, and performance analytics for your APIs.
+API Sentinel is a Next.js dashboard for viewing API health, response times,
+recent monitoring events, and failure alerts.
 
-## 🚀 Features
+The project currently runs in **demo mode**. Demo mode generates temporary
+monitoring data, so the dashboard can be used immediately without a database
+or a real API endpoint.
 
-- **Real-time Monitoring**: Auto-refresh dashboard every 15 seconds
-- **Health Tracking**: SLA monitoring with uptime percentage calculations
-- **Performance Analytics**: Response time tracking and trend analysis
-- **Alert System**: Automatic failure detection and notifications
-- **Data Visualization**: Interactive charts and graphs
-- **Responsive Design**: Mobile-first approach with modern UI/UX
-- **Database Integration**: Prisma ORM for data persistence
+## Current features
 
-## 🛠️ Tech Stack
+- Dashboard with API status and health score
+- Generated UP/DOWN demo checks
+- Response-time chart
+- Recent monitoring events
+- Failure alert display
+- API page with a working **Check Now** action
+- Responsive dark interface
+- Prisma integration prepared for future persistent data
 
-- **Frontend**: Next.js 16.1.1 (App Router), React 19, TypeScript
-- **Styling**: Tailwind CSS 4
-- **Database**: Prisma ORM
-- **Charts**: Chart.js with react-chartjs-2
-- **Icons**: Custom SVG components
-- **Deployment**: Vercel ready
+## Technology
 
-## 📊 Dashboard Features
+- Next.js 16 with the App Router
+- React 19 and TypeScript
+- Tailwind CSS 4
+- Prisma ORM
+- PostgreSQL support for real-data mode
+- Chart.js and `react-chartjs-2`
 
-- **API Status**: Real-time up/down monitoring
-- **Response Time**: Performance metrics with trend indicators
-- **Health Score**: SLA percentage with visual indicators
-- **Recent Events**: Activity log with timestamps
-- **Interactive Charts**: Response time visualization
-- **Alert Banners**: Failure notifications
+## Run the demo
 
-## 🏗️ Project Structure
+### Requirements
 
-```
-api-sentinel/
-├── app/
-│   ├── api/           # API routes
-│   ├── dashboard/     # Main dashboard page
-│   ├── alerts/        # Alerts management
-│   ├── apis/          # API management
-│   └── layout.tsx     # Root layout
-├── components/        # Reusable React components
-├── lib/              # Utility functions
-├── prisma/           # Database schema
-└── public/           # Static assets
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm, yarn, pnpm, or bun
+- Node.js 20 or newer
+- npm
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/api-sentinel.git
-cd api-sentinel
-```
+From the project directory:
 
-2. Install dependencies:
 ```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
+npm run dev
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Configure your database connection and API endpoints
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+The dashboard checks for new demo data automatically. The demo data is kept
+in server memory and resets when the development server restarts.
+
+## Project structure
+
+```text
+api-sentinel/
+├── app/
+│   ├── api/              # Monitoring and log API routes
+│   ├── alerts/           # Alerts page
+│   ├── apis/             # Monitored API page
+│   ├── dashboard/        # Main dashboard
+│   └── layout.tsx        # Application layout
+├── components/           # Reusable UI components
+├── lib/
+│   ├── mock.ts           # Temporary demo-data store
+│   ├── prisma.ts         # Prisma client
+│   └── chart.ts          # Chart.js setup
+├── prisma/
+│   └── schema.prisma     # Database schema
+└── package.json
 ```
 
-4. Set up the database:
+## Demo-data behavior
+
+When demo mode is enabled, the application:
+
+1. Starts with sample UP and DOWN events.
+2. Creates a new generated event whenever monitoring is triggered.
+3. Returns the latest events to the dashboard and chart.
+4. Keeps up to 50 events in memory.
+
+No real API request is required in this mode.
+
+## Switch to database mode
+
+Database mode is available for the next stage of development. Create a
+`.env` file in the project root:
+
+```env
+USE_MOCK_DATA="false"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
+```
+
+Then generate the Prisma client and create/update the database schema:
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-5. Run the development server:
+Start the application normally:
+
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+The current database schema stores API check results in the `ApiLog` table.
+Real production monitoring will still need endpoint configuration, scheduled
+server-side checks, authentication settings, timeouts, retries, and notification
+delivery.
 
-## 📱 Usage
+## Environment variables
 
-1. **Dashboard**: View real-time API monitoring data
-2. **APIs**: Manage and configure monitored endpoints
-3. **Alerts**: View and manage system alerts
-4. **Settings**: Configure monitoring intervals and thresholds
+| Variable | Required for demo mode | Purpose |
+|---|---:|---|
+| `USE_MOCK_DATA` | No | Set to `false` to use the database path |
+| `DATABASE_URL` | No | PostgreSQL connection string for database mode |
 
-## 🔧 Configuration
+If `USE_MOCK_DATA` is not `false`, or if `DATABASE_URL` is missing, the app
+automatically uses demo mode.
 
-### Environment Variables
-
-```env
-# Database
-DATABASE_URL="your_database_connection_string"
-
-# API Configuration
-API_ENDPOINTS="your_api_endpoints"
-MONITORING_INTERVAL=15000
-
-# Next.js
-NEXTAUTH_SECRET="your_secret_key"
-```
-
-### Database Setup
-
-The project uses Prisma for database management. Update the schema in `prisma/schema.prisma` and run migrations:
+## Available commands
 
 ```bash
-npx prisma migrate dev
+npm run dev       # Start the development server
+npm run build     # Create a production build
+npm start         # Start the production server
+npm run lint      # Run ESLint
 ```
 
-## 🚀 Deployment
+## Production roadmap
 
-### Vercel (Recommended)
+- Support multiple monitored APIs
+- Store endpoint configuration in the database
+- Run checks with a background worker or scheduled job
+- Add request headers and authentication configuration
+- Add timeout, retry, and response validation rules
+- Add email, Slack, or webhook notifications
+- Add user authentication and team/project separation
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Configure environment variables
-4. Deploy automatically
+## License
 
-### Other Platforms
-
-```bash
-npm run build
-npm start
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) - The React framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Prisma](https://www.prisma.io/) - Next-generation ORM
-- [Chart.js](https://www.chartjs.org/) - Simple yet flexible JavaScript charting
-
-## 📧 Contact
-
-Your Name - [@yourusername](https://github.com/yourusername)
-
----
-
-**Built with ❤️ using modern web technologies**
+This project is private and intended for development and internal use unless a
+separate license is added.

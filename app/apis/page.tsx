@@ -1,29 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function APIsPage() {
   const [status, setStatus] = useState<"UP" | "DOWN" | "UNKNOWN">("UNKNOWN");
   const [lastChecked, setLastChecked] = useState<string>("");
+  const [checking, setChecking] = useState(false);
 
-  const API_URL = "https://jsonplaceholder.typicode.com/posts";
+  const API_URL = "Demo API — generated dummy data";
+
+  const load = useCallback(async () => {
+    setChecking(true);
+    try {
+      const res = await fetch("/api/monitor", { cache: "no-store" });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setStatus(data.status);
+      setLastChecked(new Date().toLocaleString());
+    } catch {
+      setStatus("DOWN");
+    } finally {
+      setChecking(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/monitor", { cache: "no-store" });
-        if (!res.ok) return;
-
-        const data = await res.json();
-        setStatus(data.status);
-        setLastChecked(new Date().toLocaleString());
-      } catch {
-        setStatus("DOWN");
-      }
-    }
-
     load();
-  }, []);
+  }, [load]);
 
   return (
     <div className="lg:ml-64 flex-1 max-w-5xl px-4 sm:px-6 lg:px-8 py-8 lg:py-8 pt-20 lg:pt-8">
@@ -61,8 +65,8 @@ export default function APIsPage() {
               </p>
             </div>
             
-            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors duration-200 shadow-lg shadow-blue-500/25">
-              Check Now
+            <button onClick={load} disabled={checking} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg font-medium transition-colors duration-200 shadow-lg shadow-blue-500/25">
+              {checking ? "Checking..." : "Check Now"}
             </button>
           </div>
         </div>

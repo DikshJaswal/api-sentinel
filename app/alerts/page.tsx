@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Alert {
   id: number;
@@ -26,6 +27,13 @@ export default function AlertsPage() {
   return (
     <div className="lg:ml-64 flex-1 max-w-5xl px-4 sm:px-6 lg:px-8 py-8 lg:py-8 pt-20 lg:pt-8">
       <div className="mb-8">
+        <Link
+          href="/dashboard"
+          className="mb-6 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <span aria-hidden="true">←</span>
+          Back to Dashboard
+        </Link>
         <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Alerts</h1>
         <p className="text-gray-400">System alerts and incident notifications</p>
       </div>

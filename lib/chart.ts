@@ -6,6 +6,7 @@ import {
   LinearScale,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 
 ChartJS.register(
@@ -14,5 +15,6 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );

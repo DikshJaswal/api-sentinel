@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { addMockLog, isMockMode } from "@/lib/mock";
 
 export async function GET() {
@@ -7,6 +6,8 @@ export async function GET() {
     const log = addMockLog();
     return NextResponse.json(log);
   }
+
+  const { prisma } = await import("@/lib/prisma");
 
   const start = Date.now();
 

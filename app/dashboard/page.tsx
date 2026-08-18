@@ -30,7 +30,7 @@ async function safeJson(res: Response) {
 
 export default function Dashboard() {
   const [status, setStatus] = useState("...");
-  const [responseTime, setResponseTime] = useState("0 ms");
+  const [responseTime, setResponseTime] = useState<number | null>(0);
   const [logs, setLogs] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,9 +50,7 @@ export default function Dashboard() {
       ? "Good"
       : "Degraded";
 
-  const rt = parseInt(responseTime);
-  const rtLabel =
-    rt < 500 ? "Fast" : rt <= 1000 ? "Moderate" : "Slow";
+  const rt = responseTime ?? 0;
 
   // Auto monitoring + polling
   useEffect(() => {
@@ -68,7 +66,7 @@ export default function Dashboard() {
 
         if (mounted && monitorData) {
           setStatus(monitorData.status);
-          setResponseTime(`${monitorData.responseTime} ms`);
+          setResponseTime(monitorData.responseTime);
         }
 
         // Fetch recent logs
@@ -167,7 +165,7 @@ export default function Dashboard() {
 
               <StatCard
                 title="Response Time"
-                value={`${responseTime}`}
+                value={responseTime === null ? "N/A" : `${responseTime} ms`}
                 accent={rt < 500 ? "green" : rt <= 1000 ? "blue" : "red"}
                 trend={{
                   value: Math.floor(Math.random() * 20) - 10,

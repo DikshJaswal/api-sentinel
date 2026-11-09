@@ -7,15 +7,19 @@ export default function ClientTime() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const updateTime = () => {
+    const timer = setTimeout(() => {
+      setMounted(true);
       setTime(new Date().toLocaleTimeString());
+    }, 0);
+
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString());
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
     };
-    
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   if (!mounted) {

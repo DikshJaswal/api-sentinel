@@ -1,3 +1,6 @@
+import { getAllServices, getLogs, recordLog } from "./registry";
+import { ServiceCheckLog } from "./types";
+
 export type MockLog = {
   id: number;
   status: "UP" | "DOWN";
@@ -5,36 +8,47 @@ export type MockLog = {
   createdAt: Date;
 };
 
-// This store keeps the demo usable without PostgreSQL. It lasts for the
-// lifetime of the Next.js server and is intentionally not persistent.
-const now = Date.now();
-const mockLogs: MockLog[] = Array.from({ length: 10 }, (_, index) => ({
-  id: index + 1,
-  status: index === 3 ? "DOWN" : "UP",
-  responseTime: index === 3 ? null : 140 + ((index * 47) % 240),
-  createdAt: new Date(now - (9 - index) * 15_000),
-}));
-
 export function isMockMode() {
   return process.env.USE_MOCK_DATA !== "false" || !process.env.DATABASE_URL;
 }
 
-export function getMockLogs() {
-  return [...mockLogs].sort(
-    (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-  );
+export function getMockLogs(): MockLog[] {
+  const logs = getLogs("all", 50);
+  return logs.map((l, index) => ({
+    id: index + 1,
+    status: l.status,
+    responseTime: l.responseTime,
+    createdAt: new Date(l.createdAt),
+  }));
 }
 
-export function addMockLog() {
-  const isUp = Math.random() > 0.15;
-  const log: MockLog = {
-    id: mockLogs.length + 1,
-    status: isUp ? "UP" : "DOWN",
-    responseTime: isUp ? 120 + Math.floor(Math.random() * 380) : null,
-    createdAt: new Date(),
+export function addMockLog(): MockLog {
+  const services = getAllServices();
+  const randomService = services[Math.floor(Math.random() * services.length)] || {
+    id: "srv-default",
+    name: "RESOLVE Backend Health API",
   };
 
-  mockLogs.push(log);
-  if (mockLogs.length > 50) mockLogs.shift();
-  return log;
+  const isUp = Math.random() > 0.08;
+  const responseTime = isUp ? 90 + Math.floor(Math.random() * 220) : null;
+
+  const log: ServiceCheckLog = {
+    id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    serviceId: randomService.id,
+    serviceName: randomService.name,
+    status: isUp ? "UP" : "DOWN",
+    statusCode: isUp ? 200 : 500,
+    responseTime,
+    errorMessage: isUp ? null : "Simulated downstream exception",
+    createdAt: new Date().toISOString(),
+  };
+
+  recordLog(log);
+
+  return {
+    id: Date.now(),
+    status: isUp ? "UP" : "DOWN",
+    responseTime,
+    createdAt: new Date(),
+  };
 }

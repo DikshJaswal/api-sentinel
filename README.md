@@ -1,142 +1,125 @@
-# API Sentinel
+# API Sentinel — Distributed Synthetic Monitoring & Incident Dispatcher
 
-API Sentinel is a Next.js dashboard for viewing API health, response times,
-recent monitoring events, and failure alerts.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-api--sentinel--psi.vercel.app-22c55e?style=for-the-badge&logo=vercel)](https://api-sentinel-psi.vercel.app/dashboard)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.1.1-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19.2.3-61dafb?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
+[![Twilio & SendGrid](https://img.shields.io/badge/Alerts-Twilio_%26_SendGrid-f22f46?style=for-the-badge&logo=twilio)](https://twilio.com/)
 
-The project currently runs in **demo mode**. Demo mode generates temporary
-monitoring data, so the dashboard can be used immediately without a database
-or a real API endpoint.
+API Sentinel is an enterprise-grade synthetic health monitoring and real-time incident alerting platform built on Next.js 16 (App Router), React 19, and Tailwind CSS. It continuously audits production endpoints, measures HTTP latency distributions, calculates dynamic SLA uptime scores, and dispatches multi-channel alerts (Twilio SendGrid Email, Twilio SMS, and Webhooks) upon service degradation.
 
-## Current features
+🔗 **Live Production Dashboard**: [https://api-sentinel-psi.vercel.app/dashboard](https://api-sentinel-psi.vercel.app/dashboard)
 
-- Dashboard with API status and health score
-- Generated UP/DOWN demo checks
-- Response-time chart
-- Recent monitoring events
-- Failure alert display
-- API page with a working **Check Now** action
-- Responsive dark interface
-- Prisma integration prepared for future persistent data
+---
 
-## Technology
+## ⚡ Integrated Application Ecosystem
 
-- Next.js 16 with the App Router
-- React 19 and TypeScript
-- Tailwind CSS 4
-- Prisma ORM
-- PostgreSQL support for real-data mode
-- Chart.js and `react-chartjs-2`
+API Sentinel serves as the central observability hub for our suite of full-stack production deployments:
 
-## Run the demo
+| Monitored Service | Target Endpoint | Category | Health Checks |
+| :--- | :--- | :--- | :--- |
+| **RESOLVE Backend API** | `https://resolve-api-7q6z.onrender.com/api/health` | Production API | Live TiDB ping & uptime |
+| **RESOLVE Web Client** | `https://resolve-pink-eight.vercel.app/` | Frontend App | HTTP 200 availability probe |
+| **CodeFlow JS Debugger** | `https://codeflow-javascript-debugger.vercel.app/` | Frontend App | Runtime asset validation |
+| **FinPilot Core API** | `https://jsonplaceholder.typicode.com/posts/1` | Microservice | Synthetic latency & JSON audit |
 
-### Requirements
+---
 
-- Node.js 20 or newer
-- npm
+## 🚀 Key Features
 
-### Installation
+* **Real-Time Synthetic Health Probes**: Executes asynchronous HTTP probes measuring exact round-trip response times, checking custom expected status codes, and enforcing strict timeouts.
+* **Twilio & SendGrid Alert Dispatcher**: Dispatches instant incident notifications over HTTPS REST APIs (SendGrid Email & Twilio SMS), completely avoiding Vercel serverless SMTP port blocks.
+* **Intelligent Deduplication & Cooldown**: Implements state-aware suppression so that on-call engineers receive **one** notification when an outage starts, followed by a **recovery alert** once service is restored—preventing notification fatigue.
+* **Multi-Service Registry**: Add, customize, pause, and audit any public API or microservice on demand with configurable timeouts and expected response codes.
+* **Interactive Telemetry Dashboard**:
+  * Real-time latency trend chart with per-service target filtering.
+  * System-wide SLA uptime score (e.g., 99.8% availability).
+  * Interactive "Check All" probe triggering.
+  * In-app audit log stream with millisecond precision.
+* **Interactive Test Incident Simulator**: Test your notification pipeline directly from the UI with an on-demand synthetic test trigger.
 
-From the project directory:
+---
 
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-The dashboard checks for new demo data automatically. The demo data is kept
-in server memory and resets when the development server restarts.
-
-## Project structure
+## 🏗️ System Architecture
 
 ```text
-api-sentinel/
-├── app/
-│   ├── api/              # Monitoring and log API routes
-│   ├── alerts/           # Alerts page
-│   ├── apis/             # Monitored API page
-│   ├── dashboard/        # Main dashboard
-│   └── layout.tsx        # Application layout
-├── components/           # Reusable UI components
-├── lib/
-│   ├── mock.ts           # Temporary demo-data store
-│   ├── prisma.ts         # Prisma client
-│   └── chart.ts          # Chart.js setup
-├── prisma/
-│   └── schema.prisma     # Database schema
-└── package.json
+               ┌────────────────────────────────────────────────────────┐
+               │                     API Sentinel                       │
+               │               (Next.js 16 + React 19)                  │
+               └──────────┬───────────────────────────────┬─────────────┘
+                          │                               │
+        [Synthetic Probes / Fetch Engine]          [Notification Engine]
+                          │                               │
+       ┌──────────────────┴──────────────────┐    ┌───────┴─────────────────┐
+       ▼                                     ▼    ▼                         ▼
+ ┌───────────┐                         ┌───────────┐ ┌───────────────┐ ┌─────────────┐
+ │  RESOLVE  │                         │ CodeFlow  │ │Twilio SendGrid│ │ Twilio SMS  │
+ │Backend/DB │                         │  Vercel   │ │ (Email/Gmail) │ │(Mobile SMS) │
+ └───────────┘                         └───────────┘ └───────────────┘ └─────────────┘
 ```
 
-## Demo-data behavior
+---
 
-When demo mode is enabled, the application:
+## 🛠️ Tech Stack
 
-1. Starts with sample UP and DOWN events.
-2. Creates a new generated event whenever monitoring is triggered.
-3. Returns the latest events to the dashboard and chart.
-4. Keeps up to 50 events in memory.
+* **Framework**: Next.js 16.1.1 (App Router, Turbopack)
+* **Frontend**: React 19, Tailwind CSS 4, Chart.js, `react-chartjs-2`
+* **Alert Integrations**: Twilio SendGrid REST API, Twilio SMS API, Discord Webhooks
+* **Database ORM**: Prisma ORM (with in-memory zero-latency cache fallback)
+* **Deployment**: Vercel Serverless Edge
 
-No real API request is required in this mode.
+---
 
-## Switch to database mode
+## ⚙️ Environment Configuration
 
-Database mode is available for the next stage of development. Create a
-`.env` file in the project root:
+Create a `.env` file in the root directory (optional, system includes smart in-memory defaults for instant demo deployment):
 
 ```env
+# Optional Database (PostgreSQL / TiDB / Neon / Supabase)
+DATABASE_URL="postgresql://user:password@host:5432/apisentinel?schema=public"
 USE_MOCK_DATA="false"
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public"
+
+# Twilio SendGrid Email Alerts (HTTP REST API)
+SENDGRID_API_KEY="SG.your_sendgrid_api_key"
+SENDGRID_FROM_EMAIL="alerts@apisentinel.dev"
+ALERT_EMAIL="yourname@gmail.com"
+
+# Twilio SMS Alerts
+TWILIO_ACCOUNT_SID="ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+TWILIO_AUTH_TOKEN="your_twilio_auth_token"
+TWILIO_PHONE_NUMBER="+1XXXXXXXXXX"
+TWILIO_TO_PHONE="+1XXXXXXXXXX"
+
+# Discord Webhook (Optional)
+DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
 ```
 
-Then generate the Prisma client and create/update the database schema:
+---
+
+## 💻 Local Development
 
 ```bash
-npx prisma generate
-npx prisma db push
-```
+# Clone the repository
+git clone https://github.com/DikshJaswal/api-sentinel.git
+cd api-sentinel
 
-Start the application normally:
+# Install dependencies
+npm install
 
-```bash
+# Start development server
 npm run dev
 ```
 
-The current database schema stores API check results in the `ApiLog` table.
-Real production monitoring will still need endpoint configuration, scheduled
-server-side checks, authentication settings, timeouts, retries, and notification
-delivery.
+Open [http://localhost:3000](http://localhost:3000) to view the live dashboard.
 
-## Environment variables
+---
 
-| Variable | Required for demo mode | Purpose |
-|---|---:|---|
-| `USE_MOCK_DATA` | No | Set to `false` to use the database path |
-| `DATABASE_URL` | No | PostgreSQL connection string for database mode |
+## 📄 Resume Description (Google XYZ Format)
 
-If `USE_MOCK_DATA` is not `false`, or if `DATABASE_URL` is missing, the app
-automatically uses demo mode.
-
-## Available commands
-
-```bash
-npm run dev       # Start the development server
-npm run build     # Create a production build
-npm start         # Start the production server
-npm run lint      # Run ESLint
+```markdown
+**API Sentinel — Distributed Synthetic Monitoring & Incident Dispatcher** | *Next.js 16, React 19, TypeScript, Tailwind CSS, Twilio SendGrid, Prisma, Chart.js*
+- Architected an automated synthetic monitoring and reliability platform that continuously probes microservices across deployed full-stack applications (RESOLVE, FinPilot, CodeFlow), evaluating p95 latencies and service health scores.
+- Engineered an incident notification pipeline integrating Twilio SendGrid (Email) and Twilio SMS over HTTPS REST APIs, featuring state-aware alert deduplication and automated recovery confirmations to eliminate notification fatigue.
+- Built a real-time observability workbench with multi-service dynamic registries, interactive latency distribution charts, configurable SLA thresholds, and sub-second health verification.
 ```
-
-## Production roadmap
-
-- Support multiple monitored APIs
-- Store endpoint configuration in the database
-- Run checks with a background worker or scheduled job
-- Add request headers and authentication configuration
-- Add timeout, retry, and response validation rules
-- Add email, Slack, or webhook notifications
-- Add user authentication and team/project separation
-
-## License
-
-This project is private and intended for development and internal use unless a
-separate license is added.

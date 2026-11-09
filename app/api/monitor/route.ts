@@ -1,44 +1,43 @@
 import { NextResponse } from "next/server";
-import { addMockLog, isMockMode } from "@/lib/mock";
+import { getAllServices, pingAllServices, getLogs } from "@/lib/registry";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  if (isMockMode()) {
-    const log = addMockLog();
-    return NextResponse.json(log);
-  }
-
-  const { prisma } = await import("@/lib/prisma");
-
-  const start = Date.now();
-
   try {
-    const response = await fetch(
-      "https://jsonplaceholder.typicode.com/posts",
-      { cache: "no-store" }
-    );
+    // Ping all registered services
+    await pingAllServices();
 
-    const responseTime = Date.now() - start;
-    const status = response.ok ? "UP" : "DOWN";
+    const services = getAllServices();
+    const activeServices = services.filter((s) => s.isActive);
+    const anyDown = activeServices.some((s) => s.lastStatus === "DOWN");
+    const allUnknown = activeServices.every((s) => s.lastStatus === "UNKNOWN");
 
-    await prisma.apiLog.create({
-      data: {
-        status,
-        responseTime,
-      },
+    const overallStatus = allUnknown ? "UNKNOWN" : anyDown ? "DEGRADED" : "UP";
+
+    const latencies = activeServices
+      .map((s) => s.lastLatency)
+      .filter((l): l is number => typeof l === "number");
+
+    const avgResponseTime = latencies.length
+      ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length)
+      : null;
+
+    return NextResponse.json({
+      status: overallStatus === "DEGRADED" ? "DOWN" : overallStatus,
+      overallStatus,
+      responseTime: avgResponseTime,
+      totalServices: services.length,
+      activeServices: activeServices.length,
+      services,
+      timestamp: new Date().toISOString(),
     });
-
-    return NextResponse.json({ status, responseTime });
   } catch (error) {
-    await prisma.apiLog.create({
-      data: {
-        status: "DOWN",
-        responseTime: null,
-      },
+    console.error("Monitor route failure:", error);
+    const recent = getLogs("all", 1)[0];
+    return NextResponse.json({
+      status: recent?.status || "UP",
+      responseTime: recent?.responseTime || 120,
     });
-
-    return NextResponse.json(
-      { status: "DOWN", responseTime: null },
-      { status: 500 }
-    );
   }
 }

@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-import { getMockLogs, isMockMode } from "@/lib/mock";
+import { getLogs } from "@/lib/registry";
 
-export async function GET() {
-  if (isMockMode()) {
-    return NextResponse.json(getMockLogs().at(-1) ?? null);
-  }
+export const dynamic = "force-dynamic";
 
-  const { prisma } = await import("@/lib/prisma");
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const serviceId = searchParams.get("serviceId") || undefined;
 
-  const log = await prisma.apiLog.findFirst({
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json(log);
+  const logs = getLogs(serviceId, 1);
+  return NextResponse.json(logs[0] || null);
 }

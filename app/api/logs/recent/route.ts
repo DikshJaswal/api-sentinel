@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { getMockLogs, isMockMode } from "@/lib/mock";
+import { getLogs } from "@/lib/registry";
 
-export async function GET() {
-  if (isMockMode()) {
-    return NextResponse.json(getMockLogs().slice(-10));
-  }
+export const dynamic = "force-dynamic";
 
-  const { prisma } = await import("@/lib/prisma");
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const serviceId = searchParams.get("serviceId") || undefined;
+  const limit = Number(searchParams.get("limit")) || 20;
 
-  const logs = await prisma.apiLog.findMany({
-    orderBy: { createdAt: "desc" }, // get latest entries
-    take: 10,
-  });
-
-  // IMPORTANT: return oldest → newest for charts
-  return NextResponse.json(logs.reverse());
+  const logs = getLogs(serviceId, limit);
+  return NextResponse.json(logs);
 }
